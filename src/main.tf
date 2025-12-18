@@ -1,11 +1,7 @@
 terraform {
   required_providers {
     terrapwner = {
-      source  = "terrapwner/terrapwner"
+      source = "datadog/terrapwner"
     }
   }
 }
-
-# Example resource placeholder
-# resource "terrapwner_example" "this" {
-# }
