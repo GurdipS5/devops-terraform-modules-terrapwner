@@ -1,0 +1,44 @@
+# .gitguardian.yml
+# MANDATORY GitGuardian Secret Scanning Configuration
+
+version: 2
+
+# Files and paths to exclude from scanning
+paths-ignore:
+  # Terraform state files (contain encrypted data)
+  - "**/*.tfstate"
+  - "**/*.tfstate.backup"
+  - ".terraform/**"
+  - "**/.terraform.lock.hcl"
+  
+  # Build and cache directories
+  - "**/node_modules/**"
+  - "**/.git/**"
+  - "**/vendor/**"
+  - "**/.venv/**"
+  - "**/__pycache__/**"
+  
+  # Test fixtures (if any)
+  - "**/test/fixtures/**"
+  - "**/tests/fixtures/**"
+
+# Known safe patterns (use sparingly)
+matches-ignore:
+  # Example patterns only - adjust for your needs
+  - name: "Example secrets in documentation"
+    match: "example_secret_key"
+  - name: "Test fixtures"
+    match: "test_api_key_12345"
+  - name: "Placeholder values"
+    match: "REPLACE_WITH_YOUR_KEY"
+
+# Scan configuration
+exit-zero: false              # ⚠️ MANDATORY - Fail build on secrets
+verbose: true                 # Detailed output
+show-secrets: false           # Don't display actual secrets in logs
+ignore-known-secrets: false   # Scan all secrets (don't skip known ones)
+timeout: 300                  # 5 minute timeout
+minimum-severity: "LOW"       # Detect all severity levels
+
+# Policy enforcement
+banlisted-detectors: []       # Don't disable any detectors
