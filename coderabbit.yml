@@ -1,0 +1,209 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+# CodeRabbit Configuration
+# https://docs.coderabbit.ai/getting-started/configure-coderabbit
+
+language: en-US
+
+# Tone of the reviews
+tone_instructions: |
+  Be concise and direct. Focus on security implications since this is a 
+  security testing tool. Flag any potential misconfigurations or unsafe 
+  defaults. Use a professional but friendly tone.
+
+# Early access features
+early_access: false
+
+# Enable free tier features
+enable_free_tier: true
+
+reviews:
+  # Enable review status on PRs
+  request_changes_workflow: true
+  
+  # High level summary in PR description
+  high_level_summary: true
+  high_level_summary_placeholder: "@coderabbitai summary"
+  
+  # Enable poem in review (fun feature)
+  poem: false
+  
+  # Review status indicator
+  review_status: true
+  
+  # Collapse walkthrough after a certain number of files
+  collapse_walkthrough: 6
+  
+  # Changed files summary
+  changed_files_summary: true
+  
+  # Sequence diagrams for complex changes
+  sequence_diagrams: true
+  
+  # Assess impact on related areas
+  related_issues: true
+  related_prs: true
+  
+  # Labeling
+  auto_label:
+    enabled: true
+    labels:
+      terraform: ["**/*.tf", "**/*.tfvars"]
+      documentation: ["**/*.md", "docs/**"]
+      ci-cd: [".buildkite/**", ".teamcity/**", ".github/**"]
+      security: ["**/security*", "**/lynx*"]
+  
+  # Path-based review instructions
+  path_instructions:
+    - path: "**/*.tf"
+      instructions: |
+        Review Terraform files with focus on:
+        
+        SECURITY (Critical):
+        - Check for hardcoded secrets or credentials
+        - Verify sensitive variables are marked as sensitive = true
+        - Ensure no plaintext passwords in defaults
+        - Check for overly permissive IAM policies or security groups
+        - Validate that terrapwner data sources don't expose real credentials
+        
+        BEST PRACTICES:
+        - Verify provider version constraints are set
+        - Check for required_providers block
+        - Ensure variables have descriptions and type constraints
+        - Validate output descriptions are present
+        - Check for consistent naming conventions (snake_case)
+        - Verify locals are used for repeated values
+        
+        TERRAPWNER SPECIFIC:
+        - Ensure test commands are safe and don't cause damage
+        - Verify network probes use appropriate timeouts
+        - Check that sensitive outputs are marked sensitive = true
+        - Validate that exfiltration tests point to controlled endpoints
+        
+    - path: "**/*.tfvars"
+      instructions: |
+        Review Terraform variable files:
+        - NEVER approve if secrets/credentials are present
+        - Ensure example values are clearly fake/placeholder
+        - Check that sensitive values use environment variables instead
+        
+    - path: "**/*.md"
+      instructions: |
+        Review documentation for:
+        - Accuracy of technical instructions
+        - Security warnings are prominent
+        - Code examples are correct and safe
+        - Links are valid
+        - Badges are rendering correctly
+        
+    - path: ".buildkite/**"
+      instructions: |
+        Review Buildkite pipeline configuration:
+        - Check for secret exposure in commands
+        - Verify soft_fail is used appropriately for security tests
+        - Ensure artifact paths don't expose sensitive data
+        - Validate agent queue targeting
+        
+    - path: ".teamcity/**"
+      instructions: |
+        Review TeamCity configuration:
+        - Check for credential exposure
+        - Verify build step security
+        - Validate artifact rules don't expose secrets
+
+  # Abort review conditions
+  abort_on_close: true
+  
+  # Auto-review settings
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    drafts: false
+    base_branches:
+      - main
+      - master
+      - develop
+
+chat:
+  # Enable chat with CodeRabbit
+  auto_reply: true
+
+# Knowledge base for context
+knowledge_base:
+  opt_out: false
+  learnings:
+    scope: auto
+  issues:
+    scope: auto
+  jira:
+    project_keys: []
+  linear:
+    team_keys: []
+  pull_requests:
+    scope: auto
+
+# Tools configuration
+tools:
+  # Terraform-specific tools
+  checkov:
+    enabled: true
+    
+  # General tools
+  shellcheck:
+    enabled: true
+    
+  markdownlint:
+    enabled: true
+    
+  # GitHub Actions (if used)
+  actionlint:
+    enabled: true
+    
+  # YAML linting
+  yamllint:
+    enabled: true
+    
+  # Biome for any JS/JSON
+  biome:
+    enabled: true
+    
+  # Git leaks detection - IMPORTANT for security repo
+  gitleaks:
+    enabled: true
+    
+  # Hadolint for Dockerfiles
+  hadolint:
+    enabled: true
+
+  # Semgrep for security scanning
+  semgrep:
+    enabled: true
+
+  # Ruff for Python (if any scripts)
+  ruff:
+    enabled: true
+
+  # Terraform specific
+  terraform:
+    enabled: true
+    
+  # TFLint
+  tflint:
+    enabled: true
+
+# File filters - files to ignore
+filters:
+  # Don't review auto-generated files
+  path_filters:
+    - "!**/.terraform/**"
+    - "!**/terraform.tfstate*"
+    - "!**/.terraform.lock.hcl"
+    - "!**/CHANGELOG.md"
+    - "!**/*.tfplan"
+    - "!**/crash.log"
+    - "!**/*.backup"
+  
+  # Review limits
+  review_limits:
+    max_files: 50
+    max_hunks: 100
